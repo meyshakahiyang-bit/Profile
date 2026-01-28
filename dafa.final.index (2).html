@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAFA OKTAVIANA - PRO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root { --accent-color: #00ffcc; --neon-glow: 0 0 15px #00ffcc; }
+        
+        /* Perbaikan Mode Siang agar teks Jelas */
+        body.light-mode { background-color: #ffffff !important; background-image: none !important; color: #000000 !important; }
+        body.light-mode .header { background: #1b4332; border-bottom: 2px solid #000; }
+        body.light-mode .form-control { background: #ffffff !important; border: 2px solid #000000 !important; color: #000000 !important; }
+        body.light-mode .input-group-text { background: #eeeeee !important; color: #000 !important; border: 2px solid #000 !important; border-right: none !important; }
+        body.light-mode .label-text, body.light-mode .text-white-50 { color: #000000 !important; opacity: 1 !important; }
+        body.light-mode .result-card { background: #f8f9fa; border-color: #000000; color: #000000; }
+        body.light-mode .result-card .text-huge { color: #000 !important; }
+        body.light-mode #sidebar { background: #ffffff; border-right: 3px solid #000; color: #000; }
+        
+        body.sidebar-open { overflow: hidden; }
+
+        body { background-color: #121212; background-size: cover; background-position: center; background-attachment: fixed; min-height: 100vh; margin: 0; font-family: 'Segoe UI', Arial, sans-serif; color: #fff; padding-top: 80px; transition: 0.3s; }
+        .header { padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.95); border-bottom: 2px solid var(--accent-color); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+        .nav-toggle { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: rgba(255,255,255,0.1); border: 2px solid var(--accent-color); cursor: pointer; }
+        .glossy-title { font-weight: 900; font-size: 1.4rem; text-transform: uppercase; background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #0000ff, #ff00ff); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: rainbow 3s linear infinite; letter-spacing: 2px; }
+        @keyframes rainbow { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+        
+        #sidebar { width: 280px; background: #1a1a1a; position: fixed; height: 100vh; z-index: 3000; left: -280px; transition: 0.3s; padding: 15px; border-right: 2px solid var(--accent-color); top: 0; overflow-y: auto; }
+        #sidebar.active { left: 0; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2500; }
+        #overlay.active { display: block; }
+        
+        #cS { font-size: 1.4rem; color: #fff; text-align: right; margin-bottom: 10px; font-family: monospace; background: #000; padding: 8px; border-radius: 10px; min-height: 45px; border: 1px solid #444; word-break: break-all; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .btn-calc { aspect-ratio: 1/1; border-radius: 8px; border: none; font-size: 0.95rem; font-weight: bold; background: #333; color: white; }
+        .btn-eq { background: var(--accent-color); color: #000; }
+        
+        .calc-history { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 10px; margin-top: 15px; max-height: 150px; overflow-y: auto; font-size: 0.8rem; border: 1px solid #444; }
+        .history-item { border-bottom: 1px solid #444; padding: 5px 0; display: flex; justify-content: space-between; }
+        .main-container { padding: 15px; max-width: 600px; margin: auto; }
+        .label-text { font-weight: 900; font-size: 0.85rem; color: var(--accent-color); margin-bottom: 4px; display: block; }
+        .form-control { background: rgba(0,0,0,0.8) !important; border: 2px solid rgba(255,255,255,0.3) !important; color: #fff !important; font-weight: bold; }
+        .input-group-text { background: rgba(0,0,0,0.9); border: 2px solid rgba(255,255,255,0.3); color: var(--accent-color); border-right: none; font-weight: bold; }
+        .result-card { background: rgba(0,0,0,0.9); border: 3px solid var(--accent-color); border-radius: 20px; padding: 15px; text-align: center; margin-bottom: 15px; position: relative; }
+        .text-huge { font-size: 2rem; font-weight: 900; }
+        .lunas-toggle { font-size: 2.5rem; cursor: pointer; transition: 0.3s; color: #555; }
+        .lunas-toggle.active { color: var(--accent-color); }
+
+        /* Styling Struk */
+        .struk-card { background: #fff; color: #000; border-radius: 4px; padding: 25px; margin-top: 20px; font-family: 'Courier New', monospace; box-shadow: 0 5px 15px rgba(0,0,0,0.2); border: 1px solid #eee; position: relative; }
+        .struk-divider { border-top: 2px dashed #000; margin: 12px 0; }
+        .struk-row { display: flex; justify-content: space-between; margin: 8px 0; font-weight: bold; }
+        
+        /* Warna Status Struk */
+        .box-lunas { background: #ffff00; color: #000; padding: 5px 10px; border-radius: 5px; width: 100%; text-align: center; display: block; border: 1px solid #000; }
+        .box-belum { background: #ff0000; color: #fff; padding: 5px 10px; border-radius: 5px; width: 100%; text-align: center; display: block; }
+
+        .item-berat { background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 5px; display: inline-flex; align-items: center; gap: 8px; margin: 2px; }
+        .badge-number { background: var(--accent-color); color: #000; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.65rem; }
+    </style>
+</head>
+<body>
+
+<div id="overlay" onclick="toggleS()"></div>
+<nav id="sidebar">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="fw-bold text-info" style="font-size: 0.8rem;">KALKULATOR & RIWAYAT</span>
+    </div>
+    <div id="cS">0</div>
+    <div class="calc-grid">
+        <button class="btn-calc" onclick="cIn('C')">AC</button>
+        <button class="btn-calc" onclick="cIn('←')">⌫</button>
+        <button class="btn-calc" onclick="cIn('%')">%</button>
+        <button class="btn-calc" onclick="cIn('/')">÷</button>
+        <button class="btn-calc" onclick="cIn('7')">7</button>
+        <button class="btn-calc" onclick="cIn('8')">8</button>
+        <button class="btn-calc" onclick="cIn('9')">9</button>
+        <button class="btn-calc" onclick="cIn('*')">×</button>
+        <button class="btn-calc" onclick="cIn('4')">4</button>
+        <button class="btn-calc" onclick="cIn('5')">5</button>
+        <button class="btn-calc" onclick="cIn('6')">6</button>
+        <button class="btn-calc" onclick="cIn('-')">-</button>
+        <button class="btn-calc" onclick="cIn('1')">1</button>
+        <button class="btn-calc" onclick="cIn('2')">2</button>
+        <button class="btn-calc" onclick="cIn('3')">3</button>
+        <button class="btn-calc" onclick="cIn('+')">+</button>
+        <button class="btn-calc" onclick="cIn('0')">0</button>
+        <button class="btn-calc" onclick="cIn('00')">00</button>
+        <button class="btn-calc" onclick="cIn('.')">.</button>
+        <button class="btn-calc btn-eq" onclick="cIn('=')">=</button>
+    </div>
+    <div class="calc-history" id="calcHistory"></div>
+    <button class="btn btn-dark btn-sm w-100 mt-2" onclick="clearCalcHistory()" style="font-size: 0.7rem;">HAPUS RIWAYAT HITUNG</button>
+    <hr>
+    <button class="btn btn-outline-info w-100 btn-sm mb-2" onclick="document.getElementById('bgInput').click()">GANTI BACKGROUND</button>
+    <input type="file" id="bgInput" hidden accept="image/*" onchange="chBg(event)">
+    <button class="btn btn-outline-danger w-100 btn-sm" onclick="resetDatabase()">HAPUS DATA TRANSAKSI</button>
+</nav>
+
+<header class="header">
+    <div class="nav-toggle" onclick="toggleS()"><i class="bi bi-calculator-fill fs-3 text-white"></i></div>
+    <div class="glossy-title">DAFA OKTAVIANA</div>
+    <div id="themeBtn" onclick="toggleTheme()" style="cursor:pointer"><i class="bi bi-moon-stars-fill fs-3" style="color: var(--accent-color);"></i></div>
+</header>
+
+<div class="main-container">
+    <div class="row g-2">
+        <div class="col-12"><span class="label-text">NAMA PELANGGAN</span><input type="text" id="inNama" class="form-control" placeholder="Nama..."></div>
+        <div class="col-6"><span class="label-text">TANGGAL</span><input type="text" id="inTgl" class="form-control text-center" readonly></div>
+        <div class="col-6"><span class="label-text">INPUT BERAT</span>
+            <div class="input-group"><input type="text" id="inKg" class="form-control text-center" placeholder="0" oninput="fmWeight(this)" onkeypress="if(event.key==='Enter') addK()"><button class="btn btn-primary fw-bold" onclick="addK()">+</button></div>
+        </div>
+        <div class="col-12"><div id="listTimbangan" class="d-flex flex-wrap"></div></div>
+        <div class="col-12 mt-2"><span class="label-text">HARGA/KG</span><div class="input-group"><span class="input-group-text">Rp</span><input type="text" id="inHarga" class="form-control" oninput="fmRp(this)" placeholder="0"></div></div>
+        
+        <div class="col-12 mt-3">
+            <div class="result-card">
+                <small class="text-white-50 fw-bold">TOTAL BERAT</small>
+                <div class="text-huge" id="resKg">0 KG</div>
+                <small class="text-white-50 fw-bold">TOTAL TAGIHAN</small>
+                <div class="text-huge text-warning">RP <span id="resRp">0</span></div>
+                <div class="mt-2 d-flex flex-column align-items-center">
+                    <small class="text-white-50 fw-bold mb-1">LUNASKAN</small>
+                    <i id="toggleLunas" class="bi bi-toggle-off lunas-toggle" onclick="toggleLunasAction()"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-6"><span class="label-text">DI BAYAR</span><div class="input-group"><span class="input-group-text">Rp</span><input type="text" id="inBayar" class="form-control text-success" oninput="fmRp(this); updateToggleIcon();" placeholder="0"></div></div>
+        <div class="col-6"><span class="label-text">SISA</span><div class="input-group"><span class="input-group-text">Rp</span><input type="text" id="inSisa" class="form-control text-danger" readonly placeholder="0"></div></div>
+        <button class="btn btn-success w-100 py-3 mt-4 fw-bold rounded-pill" onclick="simpanData()">SIMPAN DATA TRANSAKSI</button>
+    </div>
+    <div id="containerSimpan"></div>
+</div>
+
+<script>
+    let tempK = [], database = JSON.parse(localStorage.getItem('df_db')) || [], cv = "";
+    let hCalc = JSON.parse(localStorage.getItem('df_hcalc')) || [];
+
+    function toggleS() { 
+        const s = document.getElementById('sidebar');
+        const o = document.getElementById('overlay');
+        document.body.classList.toggle('sidebar-open');
+        s.classList.toggle('active'); 
+        o.classList.toggle('active'); 
+    }
+
+    function setDate() { 
+        const d = new Date();
+        document.getElementById('inTgl').value = `${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`;
+    }
+    
+    function chBg(e) { const r = new FileReader(); r.onload = f => { document.body.style.backgroundImage = `url('${f.target.result}')`; localStorage.setItem('df_bg', f.target.result); }; r.readAsDataURL(e.target.files[0]); }
+    
+    function toggleTheme() { 
+        document.body.classList.toggle('light-mode'); 
+        const isL = document.body.classList.contains('light-mode'); 
+        document.getElementById('themeBtn').innerHTML = isL ? '<i class="bi bi-sun-fill fs-3" style="color:#000"></i>' : '<i class="bi bi-moon-stars-fill fs-3" style="color: var(--accent-color);"></i>'; 
+        localStorage.setItem('df_theme', isL ? 'light' : 'dark'); 
+    }
+
+    function fmWeight(el) {
+        let v = el.value.replace(/\D/g, '');
+        el.value = v === "" ? "" : parseInt(v).toLocaleString('id-ID');
+    }
+
+    function addK() { 
+        let valStr = document.getElementById('inKg').value.replace(/\./g, '');
+        const b = parseFloat(valStr); 
+        if(b > 0) { tempK.push(b); document.getElementById('inKg').value = ''; renderK(); calc(); } 
+    }
+    
+    function renderK() { 
+        document.getElementById('listTimbangan').innerHTML = tempK.map((k, i) => `
+            <div class="item-berat">
+                <span class="badge-number">${i+1}</span>
+                <span>${k.toLocaleString('id-ID')}</span>
+                <i class="bi bi-x-circle text-danger" style="cursor:pointer" onclick="if(confirm('Hapus item ${i+1}?')){tempK.splice(${i},1);renderK();calc();}"></i>
+            </div>`).join(''); 
+    }
+    
+    function fmRp(el) { 
+        let v = el.value.replace(/\D/g, ''); 
+        el.value = v === "" ? "" : parseInt(v).toLocaleString('id-ID'); 
+        calc(); 
+    }
+    
+    function calc() {
+        const tK = tempK.reduce((a,b)=>a+b,0);
+        const h = parseInt(document.getElementById('inHarga').value.replace(/\./g,'')) || 0;
+        const b = parseInt(document.getElementById('inBayar').value.replace(/\./g,'')) || 0;
+        const tot = Math.round(tK * h);
+        document.getElementById('resKg').innerText = tK.toLocaleString('id-ID') + " KG";
+        document.getElementById('resRp').innerText = tot.toLocaleString('id-ID');
+        document.getElementById('inSisa').value = (tot-b) > 0 ? (tot-b).toLocaleString('id-ID') : "0";
+        updateToggleIcon();
+    }
+
+    function toggleLunasAction() {
+        const total = document.getElementById('resRp').innerText;
+        const icon = document.getElementById('toggleLunas');
+        document.getElementById('inBayar').value = icon.classList.contains('bi-toggle-off') ? total : "0";
+        calc();
+    }
+
+    function updateToggleIcon() {
+        const total = document.getElementById('resRp').innerText;
+        const bayar = document.getElementById('inBayar').value;
+        const icon = document.getElementById('toggleLunas');
+        if (bayar === total && total !== "0") { icon.classList.replace('bi-toggle-off', 'bi-toggle-on'); icon.classList.add('active'); }
+        else { icon.classList.replace('bi-toggle-on', 'bi-toggle-off'); icon.classList.remove('active'); }
+    }
+
+    function cIn(v) {
+        const s = document.getElementById('cS');
+        if(v === '=') {
+            try { let res = eval(cv.replace(/×/g,'*').replace(/÷/g,'/')); hCalc.unshift(`${cv} = ${res}`); if(hCalc.length > 10) hCalc.pop(); localStorage.setItem('df_hcalc', JSON.stringify(hCalc)); cv = res.toString(); s.innerText = cv; renderCalcHistory(); } catch { s.innerText="Error"; cv=""; }
+        } else if(v === 'C') { cv = ""; s.innerText = "0"; }
+        else if(v === '←') { cv = cv.slice(0,-1); s.innerText = cv || "0"; }
+        else { if(cv === "0") cv = ""; cv += v; s.innerText = cv; }
+    }
+
+    function renderCalcHistory() {
+        const box = document.getElementById('calcHistory');
+        box.innerHTML = hCalc.length === 0 ? '<div class="text-center text-white-50 small">Belum ada riwayat</div>' : hCalc.map(h => `<div class="history-item"><span>${h}</span></div>`).join('');
+    }
+
+    function clearCalcHistory() { if(confirm("Hapus riwayat hitung?")) { hCalc = []; localStorage.removeItem('df_hcalc'); renderCalcHistory(); } }
+
+    function simpanData() {
+        if(tempK.length === 0) return alert("Isi berat!");
+        const sisaVal = document.getElementById('inSisa').value;
+        database.push({
+            id: Date.now(),
+            n: document.getElementById('inNama').value || "Umum",
+            tgl: document.getElementById('inTgl').value,
+            tK: document.getElementById('resKg').innerText,
+            h: document.getElementById('inHarga').value || "0",
+            tot: document.getElementById('resRp').innerText,
+            bayar: document.getElementById('inBayar').value || "0",
+            sisa: sisaVal,
+            stat: sisaVal === "0" ? "Lunas" : "Belum Lunas",
+            rinci: tempK.map((k, idx) => `(${idx+1}) ${k.toLocaleString('id-ID')}`).join(' + ')
+        });
+        localStorage.setItem('df_db', JSON.stringify(database));
+        renderCards(); alert("Tersimpan!");
+        tempK=[]; document.getElementById('inNama').value=''; document.getElementById('inHarga').value=''; document.getElementById('inBayar').value=''; renderK(); calc();
+    }
+
+    function renderCards() {
+        document.getElementById('containerSimpan').innerHTML = database.slice().reverse().map((it, idx) => {
+            const noUrut = database.length - idx;
+            const statusClass = it.stat === 'Lunas' ? 'box-lunas' : 'box-belum';
+            return `
+            <div class="struk-card">
+                <div class="text-center fw-bold">NO. ${noUrut}</div>
+                <div class="text-center fw-bold">STRUK TRANSAKSI</div>
+                <div class="text-center small">${it.tgl}</div>
+                <div class="struk-divider"></div>
+                <div class="struk-row"><span>PELANGGAN:</span><span>${it.n}</span></div>
+                <div class="struk-row" style="flex-direction:column;"><span>RINCIAN:</span><div style="text-align:right">${it.rinci}</div></div>
+                <div class="struk-divider"></div>
+                <div class="struk-row"><span>TOTAL BERAT:</span><span>${it.tK}</span></div>
+                <div class="struk-row"><span>HARGA/KG:</span><span>Rp ${it.h}</span></div>
+                <div class="struk-divider"></div>
+                <div class="struk-row"><span>TOTAL TAGIHAN:</span><span>Rp ${it.tot}</span></div>
+                <div class="struk-row"><span>DIBAYAR:</span><span>Rp ${it.bayar}</span></div>
+                ${it.sisa !== "0" ? `<div class="struk-row text-danger"><span>SISA TAGIHAN:</span><span>Rp ${it.sisa}</span></div>` : ''}
+                <div class="mt-2"><span class="${statusClass}">${it.stat.toUpperCase()}</span></div>
+                <div class="text-center mt-3"><button class="btn btn-sm btn-outline-danger w-100 fw-bold" onclick="if(confirm('Hapus riwayat ini?')){database = database.filter(d => d.id !== ${it.id});localStorage.setItem('df_db',JSON.stringify(database));renderCards();}">HAPUS STRUK</button></div>
+            </div>`;
+        }).join('');
+    }
+
+    function resetDatabase() { if(confirm("Hapus semua data transaksi?")) { database=[]; localStorage.removeItem('df_db'); renderCards(); } }
+    if(localStorage.getItem('df_theme') === 'light') toggleTheme();
+    if(localStorage.getItem('df_bg')) document.body.style.backgroundImage = `url('${localStorage.getItem('df_bg')}')`;
+    setDate(); renderCards(); renderCalcHistory();
+</script>
+</body>
+</html>
